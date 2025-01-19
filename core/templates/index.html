@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mx-auto mt-4 p-4 flex">
+        <aside class="bg-gray-200 shadow-lg w-1/4 rounded-md mr-4 overflow-y-auto">
+            <nav class="text-center mt-4 mb-2">
+                <h3 class="text-lg font-semibold text-gray-900">Book Categories</h3>
+                <ul class="px-4 mt-4 space-y-2">
+                    {% for category in categories %}
+                        <li class="bg-gray-300 hover:bg-gray-400 text-gray-900 p-2 rounded">
+                            <a href="?category={{ category.id }}">{{ category.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </aside>
+
+        <section class="w-3/4">
+            {% if not current_category_id %}
+                {% for category, books in all_books_by_category.items %}
+                    <h2 class="font-semibold text-lg text-gray-800 mb-4">{{ category.name }}</h2>
+                    {% if books %}
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                            {% for book in books %}
+                                <div class="bg-white shadow-md rounded-md p-4">
+                                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="rounded h-56 w-full mb-4 object-cover object-center" />
+                                    <h3 class="text-lg text-gray-900 font-semibold truncate mb-2">{{ book.title }}</h3>
+                                    <p class="text-sm mb-4 text-gray-600 truncate">{{ book.description|slice:"0:100" }}...</p>
+                                    <div class="flex flex-col sm:flex-row justify-between items-center">
+                                        <span class="text-sm text-gray-600 font-semibold">{{ book.borrowing_price }} $</span>
+                                        <a class="text-white bg-blue-500 hover:bg-blue-700 font-semibold px-2 py-1 rounded"
+                                           href="{% url 'book_detail' pk=book.id %}">
+                                            Details
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-600">This category has no books.</p>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <h2 class="font-semibold text-lg text-gray-800 mb-4">{{ current_category_name }}</h2>
+                {% if filtered_books %}
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                        {% for book in filtered_books %}
+                            <div class="bg-white shadow-md rounded-md p-4">
+                                <img src="{{ book.image.url }}" alt="{{ book.title }}" class="rounded h-56 w-full mb-4 object-cover object-center" />
+                                <h3 class="text-lg text-gray-900 font-semibold truncate mb-2">{{ book.title }}</h3>
+                                <p class="text-sm mb-4 text-gray-600 truncate">{{ book.description|slice:"0:100" }}...</p>
+                                <div class="flex flex-col sm:flex-row justify-between items-center">
+                                    <span class="text-sm text-gray-600 font-semibold">{{ book.borrowing_price }} $</span>
+                                    <a class="text-white bg-blue-500 hover:bg-blue-700 font-semibold px-2 py-1 rounded"
+                                       href="{% url 'book_detail' pk=book.id %}">
+                                        Details
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">This category has no books.</p>
+                {% endif %}
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

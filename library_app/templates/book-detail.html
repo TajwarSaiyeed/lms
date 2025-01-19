@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mx-auto mt-4 p-4">
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/3 mb-4 md:mb-0">
+                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="rounded-md h-72 w-full object-cover object-center">
+                </div>
+
+                <div class="md:w-2/3 md:ml-6">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ book.title }}</h1>
+                    <p class="text-gray-600 mb-4">
+                        <strong>Description:</strong> {{ book.description }}
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        <strong>Borrowing Price:</strong> {{ book.borrowing_price }} $
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        <strong>Category:</strong> {{ book.category.name }}
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="{% url 'home' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                            Back to Home
+                        </a>
+                        {% if user.is_authenticated %}
+                            {% if is_borrowed %}
+                                <p class="text-green-500 font-semibold">
+                                    You have already borrowed this book.
+                                </p>
+                            {% else %}
+                                <form method="post" action="{% url 'borrow_book' book.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                                        Borrow Book
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'login' %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                                Login to Borrow
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 mt-6">Reviews</h2>
+            <div class="bg-white shadow-lg rounded-lg p-6 mt-4">
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="flex items
+                        -center justify-between border-b border-gray-200 py-4">
+                            <div>
+                                <p class="text-gray-800 font-semibold">{{ review.reviewer.username }}</p>
+                                <p class="text-gray-600">{{ review.review_text }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">{{ review.reviewed_at }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-gray-600">No reviews yet.</p>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    {% if is_borrowed or is_borrowed_by_user %}
+                        {% if not is_borrowed and is_borrowed_by_user %}
+                            <p class="text-green-500 font-semibold mt-5">
+                                You have borrowed this book before.
+                            </p>
+                        {% endif %}
+                        <h2 class="text-2xl font-bold text-gray-800 mt-6">Add Review</h2>
+                    <form method="post" action="{% url 'add_review' book.id %}" class="mt-4">
+                        {% csrf_token %}
+                        <label>
+                            <textarea name="review_text" class="w-full p-2 border border-gray-200 rounded" placeholder="Write your review here"></textarea>
+                        </label>
+                        <button type="submit"
+                                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition mt-2">
+                            Add Review
+                        </button>
+                    </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
